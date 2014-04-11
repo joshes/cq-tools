@@ -10,14 +10,14 @@ Tools to make working with CQ/AEM a little faster/easier/better
 
 ## Installation
 
-### Brew
+### Install with Homebrew
 
 ```sh
 brew tap joshes/tap
 brew install cq-tools
 ```
 
-### Manual
+### Install manually
 
 ```sh
 git clone https://github.com/joshes/cq-tools.git
