@@ -52,12 +52,16 @@ end
 def exec_switch(key_single, key_multi)
   config = read_config!
   things = config[key_multi]
-  if things.length == 1
-    puts "Only one #{key_single} available - nothing to switch to"
-    puts "To add a new #{key_single} configuration modify: #{usr_file}"
-    exit 0
-  end
-  default_option = config[key_single]
+
+  # TODO not sure of the best way to initialize if this is the first run ... disable this for now
+
+  # if things.length == 1
+  #   puts "Only one #{key_single} available - nothing to switch to"
+  #   puts "To add a new #{key_single} configuration modify: #{usr_file}"
+  #   exit 0
+  # end
+
+  default_option = config['config'][key_single]
   selected = switch(key_single, key_multi, things, default_option)
   config[key_single] = selected
   save_config! config
