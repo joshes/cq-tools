@@ -1,4 +1,4 @@
-CQ-Scripts
+CQ-Tools
 ========
 
 Tools to make working with CQ/AEM a little faster/easier/better
