@@ -1,0 +1,6 @@
+#!/bin/sh
+
+local path=`brew --cellar`
+path+="/$1/"
+path+=`ls -v "$path" | tail -n 1`
+echo $path

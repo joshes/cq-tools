@@ -1,0 +1,2 @@
+#!/bin/sh
+${CQ_SERVER_HOME}/bin/stop

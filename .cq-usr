@@ -1,0 +1,23 @@
+{
+    "config": {
+        "server": 0,
+        "branch": 0
+    },
+    "servers": [
+        {
+            "id": "default-5.5.0",
+            "path": "~/Servers/cq5/author",
+            "host": "localhost",
+            "port": "4502",
+            "user": "admin",
+            "pass": "admin",
+            "secure": false
+        }
+    ],
+    "branches": [
+        {
+            "id": "default",
+            "path": "~/Workspace/brand-cq"
+        }
+    ]
+}

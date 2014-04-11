@@ -1,0 +1,4 @@
+#!/bin/sh
+
+export CQ_SERVER_HOME=
+export CQ_BRANCH_HOME=

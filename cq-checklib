@@ -1,0 +1,49 @@
+#!/usr/bin/env ruby
+
+#
+# Checks a client-lib to spot minification errors
+#
+
+puts 'install brew first please or set the path to the closure compiler' if '' == `which brew`
+
+def install_compiler
+  puts 'installing closure-compiler via brew - ok? (y/n)'
+  install = gets
+  install.chomp!
+  puts install.downcase
+  unless install =~ /[y|yes]/
+    abort
+  end
+  `brew install closure-compiler`
+end
+
+compiler_installed = `brew list | grep -c closure-compiler`.to_i == 1
+unless compiler_installed
+  install_compiler
+end
+
+js_root = ARGV[0]
+if js_root.nil?
+  abort('Path to JS root is required!')
+end
+
+compiler_args = '--debug --compilation_level ADVANCED_OPTIMIZATIONS'
+js_txt_path = File.join(js_root, 'js.txt')
+if File.exists?(js_txt_path)
+  base = ''
+  IO.foreach(js_txt_path) { |line|
+    line.chomp!
+    if line =~ /^#base=.*/
+      base = line.gsub('#base=', '')
+    end
+    unless line =~ /^\s*$|^#.*/ # ignore empty lines and commented lines
+      compiler_args += " --js '#{File.join(js_root, base, line)}' "
+    end
+  }
+
+  # execute
+  `closure-compiler #{compiler_args.strip!}`
+
+else
+  abort("No js.txt file was found at: #{js_root}")
+end

@@ -1,0 +1,6 @@
+#!/usr/bin/env ruby
+
+require_relative 'cq-set'
+exec_switch 'branch', 'branches' do |branch|
+    write_env 'CQ_BRANCH_HOME', branch['path']
+end

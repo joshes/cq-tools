@@ -1,0 +1,2 @@
+#!/bin/sh
+tail -f ${CQ_SERVER_HOME}/logs/error.log
