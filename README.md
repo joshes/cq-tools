@@ -42,9 +42,9 @@ There are two ways to configure these tools.
 
 1. Edit ~/.cq-env to match your system
 
-CQ_SERVER_HOME should point to the root of your server (e.g. ~/Servers/cq5/cq-quickstart)
+**CQ_SERVER_HOME** should point to the root of your server (e.g. ~/Servers/cq5/cq-quickstart)
 
-CQ_BRANCH_HOME should point to your CQ project and is only necessary to be set if you use cq-sync - this will sync all files realtime found under /jcr_root/
+**CQ_BRANCH_HOME** should point to your CQ project and is only necessary to be set if you use cq-sync - this will sync all files realtime found under /jcr_root/
 
 ### Switchable
 
