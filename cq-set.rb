@@ -65,5 +65,6 @@ def exec_switch(key_single, key_multi)
   selected = switch(key_single, key_multi, things, default_option)
   config[key_single] = selected
   save_config! config
+  `source #{env_file}`
   yield config[key_multi][selected] if block_given?
 end
