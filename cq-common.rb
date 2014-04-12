@@ -15,9 +15,9 @@ def user_home_dir
 end
 
 def env_file
-  File.join(user_home_dir, '.cq-env')
+  File.join(user_home_dir, '.cq/env')
 end
 
 def usr_file
-  File.join(user_home_dir, '.cq-cfg')
+  File.join(user_home_dir, '.cq/cfg')
 end

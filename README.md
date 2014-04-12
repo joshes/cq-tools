@@ -27,7 +27,7 @@ brew install cq-tools
 
 ```sh
 git clone https://github.com/joshes/cq-tools.git
-cp cq-tools/etc/.cq* ~
+cp cq-tools/.cq/* ~
 ```
 
 ## Configuration
@@ -35,7 +35,7 @@ cp cq-tools/etc/.cq* ~
 Regardless of your configuration path chosen below, add this to your environment startup (e.g. ~/.bash_profile).
 
 ```sh
-source ~/.cq-env
+source ~/.cq/env
 ```
 
 There are two ways to configure these tools.
@@ -45,7 +45,7 @@ There are two ways to configure these tools.
 
 ### Simple
 
-1. Edit ~/.cq-env to match your system
+1. Edit ~/.cq/env to match your system
 
 **CQ_SERVER_HOME** should point to the root of your server (e.g. ~/Servers/cq5/cq-quickstart)
 
@@ -53,8 +53,8 @@ There are two ways to configure these tools.
 
 ### Switchable
 
-1. Edit ~/.cq-cfg to your requirements, adding as many servers and/or branches as required
+1. Edit ~/.cq/cfg to your requirements, adding as many servers and/or branches as required
 2. Run: cq-set-server and choose the server you want to use for the current session
 3. Run: cq-set-branch and choose the branch you want to use for the current session
 
-These scripts effectively manage the .cq-env file for you based on your configuration settings.
+These scripts effectively manage the ~/.cq/env file for you based on your configuration settings.
