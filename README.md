@@ -27,7 +27,7 @@ brew install cq-tools
 
 ```sh
 git clone https://github.com/joshes/cq-tools.git
-cp cq-tools/.cq/* ~
+cp cq-tools/.cq ~
 ```
 
 ## Configuration
