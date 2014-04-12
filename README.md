@@ -19,7 +19,7 @@ Tools to make working with CQ/AEM a little faster/easier/better
 ### Install with Homebrew
 
 ```sh
-brew tap joshes/tap
+brew tap joshes/homebrew-tap
 brew install cq-tools
 ```
 
