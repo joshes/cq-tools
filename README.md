@@ -7,12 +7,12 @@ Tools to make working with CQ/AEM a little faster/easier/better
 
 ### General
 
-1. Ruby 1.9.3 or greater : curl -sSL https://get.rvm.io | bash -s stable --ruby
+1. Ruby 1.9.3
 
 ### For cq-sync:
 
-1. DirectoryWatcher : https://github.com/joshes/directory-watcher
-2. Java 7 for cq-sync : http://docs.oracle.com/javase/7/docs/webnotes/install/mac/mac-jdk.html
+1. DirectoryWatcher
+2. Java 7
 
 ## Installation
 
@@ -53,7 +53,7 @@ There are two ways to configure these tools.
 
 ### Switchable
 
-1. Edit ~/.cq-usr to your requirements, adding as many servers and/or branches as required
+1. Edit ~/.cq-cfg to your requirements, adding as many servers and/or branches as required
 2. Run: cq-set-server and choose the server you want to use for the current session
 3. Run: cq-set-branch and choose the branch you want to use for the current session
 
