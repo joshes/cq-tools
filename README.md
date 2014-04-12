@@ -26,8 +26,8 @@ brew install cq-tools
 ## Configuration
 
 1. Add 'source ~/.cq/env' to ~/.bash_profile
-2. Edit ~/.cq/cfg to your requirements, adding as many servers and/or branches as required
+2. Edit ~/.cq/cfg to your requirements, adding as many servers and/or workspaces as required
 2. Run: cq-set-server and choose the server you want to use for the current session
-3. Run: cq-set-branch and choose the branch you want to use for the current session
+3. Run: cq-set-workspace and choose the branch you want to use for the current session
 
 These scripts effectively manage the ~/.cq/env file for you based on your configuration settings.
