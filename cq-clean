@@ -1,0 +1,99 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'json'
+require 'open-uri'
+require_relative 'cq-common'
+
+# TODO wrap the configuration into an object ...
+# TODO refactor the following configuration a bit
+
+# Configuration
+CONFIG = read_config!
+VERBOSE=to_bool(CONFIG['debug'])
+HOST = configured_host(CONFIG)
+USER = configured_user(CONFIG)
+PASS = configured_pass(CONFIG)
+WORKSPACE = workspace(CONFIG)
+CLEAN_OPTS = WORKSPACE['clean']
+NODES = CLEAN_OPTS['nodes']
+BUNDLE_PATTERNS = CLEAN_OPTS['bundles'].map { |pattern| /#{pattern}/ }
+
+# Get all keys from hash recursively
+def nested_keys(hash)
+  keys = []
+  hash.keys.each { |key| 
+    if hash[key].is_a? Hash
+      keys += nested_keys(hash[key])
+    end
+    keys << key
+  }
+  keys
+end
+
+def get_bundles(str_json)
+  json = JSON.parse(str_json)
+  nested_keys(json).uniq.select { |k|
+    matches = BUNDLE_PATTERNS.select { |p|
+      k =~ p
+    }
+    matches.length > 0
+  }
+end
+
+# Find packages to remove based on bundle patterns
+bundles = []
+begin
+  str_json = open("#{HOST}/etc/packages.infinity.json", :http_basic_authentication=>[USER, PASS]).read
+  bundles = get_bundles(str_json)
+rescue OpenURI::HTTPError => error
+  response = error.io
+  if response.status[0].to_i == 300
+    # CQ 5.6 changes how they use infinity selector - find the deepest path and use it
+    path = JSON.parse(response.string).first
+    str_json = open("#{HOST}/#{path}", :http_basic_authentication=>[USER, PASS]).read
+    bundles += get_bundles(str_json)
+  else
+    raise error, "Failed to get bundle list", caller
+  end
+end
+
+bundles.uniq!
+
+puts '=-=-=-=-=-=-=-=-=-=-=-=-=-=-='
+puts 'Nodes to delete:'
+puts '=-=-=-=-=-=-=-=-=-=-=-=-=-=-='
+puts NODES
+puts ''
+puts '=-=-=-=-=-=-=-=-=-=-=-=-=-=-='
+puts 'Bundles to delete:'
+puts '=-=-=-=-=-=-=-=-=-=-=-=-=-=-='
+puts bundles
+puts ''
+puts 'Continue (y/n)?'
+
+yn = gets.chomp
+if yn !~ /[y|yes]/i
+  puts 'Quiting'
+  exit
+end
+
+v = ''
+if VERBOSE
+  v = '-v'
+end
+
+# Remove the packages
+commands = %w(uninstall delete)
+bundles.each { |bundle|
+  commands.each { |cmd|
+    `curl #{v} -X POST -H 'referer: app:/' -u #{USER}:#{PASS} -F cmd=#{cmd} #{HOST}/crx/packmgr/service/script.html/etc/packages/#{bundle}`
+  }
+}
+
+# Remove the nodes
+NODES.each { |path|
+    `curl #{v} -H 'referer: app:/' -F":operation=delete" #{HOST}#{path} -u #{USER}:#{PASS}`
+}
+
+puts 'Done'

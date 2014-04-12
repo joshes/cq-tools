@@ -1,2 +1,2 @@
 #!/bin/sh
-DirectoryWatcher ${CQ_BRANCH_HOME} "cq-filewatch-handler.rb --file=%file%"
+DirectoryWatcher ${CQ_TOOLS_WORKSPACE} "cq-filewatch-handler.rb --file=%file%"

@@ -2,14 +2,6 @@ require 'rubygems'
 require 'json'
 require_relative 'cq-common'
 
-def read_config!
-  JSON.parse(File.open(usr_file, 'rb').read)
-end
-
-def save_config!(config)
-  File.open(usr_file, 'wb').write(JSON.pretty_generate(config))
-end
-
 def list_options(array_with_ids)
   array_with_ids.each_with_index do |entry, i|
     puts "  #{i}: #{entry['id']}"
@@ -61,7 +53,7 @@ def exec_switch(key_single, key_multi)
   #   exit 0
   # end
 
-  default_option = config['config'][key_single]
+  default_option = config[key_single]
   selected = switch(key_single, key_multi, things, default_option)
   config[key_single] = selected
   save_config! config

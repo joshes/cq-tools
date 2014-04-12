@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
 require_relative 'cq-set'
 exec_switch 'server', 'servers' do |server|
-    write_env 'CQ_SERVER_HOME', server['path']
+    write_env 'CQ_TOOLS_SERVER', server['path']
 end

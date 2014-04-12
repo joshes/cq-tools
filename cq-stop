@@ -1,2 +1,2 @@
 #!/bin/sh
-${CQ_SERVER_HOME}/bin/stop
+${CQ_TOOLS_SERVER}/bin/stop

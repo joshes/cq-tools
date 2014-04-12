@@ -1,8 +1,7 @@
 {
-    "config": {
-        "server": 0,
-        "branch": 0
-    },
+    "server": 0,
+    "workspace": 0,
+    "debug": false,
     "servers": [
         {
             "id": "default-5.5.0",
@@ -14,10 +13,46 @@
             "secure": false
         }
     ],
-    "branches": [
+    "workspaces": [
         {
             "id": "default",
-            "path": "~/Workspace/cq-project"
+            "path": "/Workspace",
+            "clean" : {
+                "nodes": [
+                    "/apps/my-app"
+                ],
+                "bundles": [
+                    "/^my-project-.*\.zip/"
+                ]
+            },
+            "build" : {
+                "profiles": [
+                    "dev"
+                ],
+                "skipTestFlags" : [
+                    "-Dmaven.test.skip=true"
+                ],
+                "projects": [
+                    {
+                        "id": "my-project",
+                        "profiles": ["install-all"]
+                    },
+                    {
+                        "id": "sub-project",
+                        "path": "my-project/sub-project"
+                        "profiles": ["install-all"]
+                    }
+                ],
+                "groups": [
+                    {
+                        "id": "all",
+                        "projects": [
+                            "my-project",
+                            "sub-project"
+                        ]
+                    }
+                ]
+            }
         }
     ]
 }
