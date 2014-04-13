@@ -49,7 +49,7 @@ module CqTools
 			projects_to_build.uniq!
 
 			# Build 
-			projects.each { |proj_config| 
+      projects_to_build.each { |proj_config|
 				build_project(workspace_config['path'], proj_config, profiles, clean, test, offline, skip_test_flags)
 			}
 		end
