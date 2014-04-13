@@ -1,2 +1,3 @@
 #!/bin/sh
+
 ${CQ_TOOLS_SERVER}/bin/start

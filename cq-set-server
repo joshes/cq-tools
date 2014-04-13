@@ -1,5 +1,9 @@
 #!/usr/bin/env ruby
-require_relative 'cq-set'
+
+require_relative 'cq_configuration_setter'
+
+include CqTools::ConfigurationSetter
+
 exec_switch 'server', 'servers' do |server|
     write_env 'CQ_TOOLS_SERVER', server['path']
 end

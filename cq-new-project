@@ -1,4 +1,5 @@
 #!/bin/sh
+
 mvn archetype:generate \
 -DarchetypeCatalog=http://dev.cqblueprints.com/nexus/content/repositories/releases/ \
 -Dfilter=multi-module \
