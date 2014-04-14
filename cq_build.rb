@@ -1,4 +1,3 @@
-# require 'open3'
 require_relative 'cq_common'
 require_relative 'cq_configuration'
 
