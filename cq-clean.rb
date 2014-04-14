@@ -45,8 +45,6 @@ module CqTools
       nodes = clean_opts['nodes']
       bundle_patterns = clean_opts['bundles'].map { |pattern| /#{pattern}/ }
 
-      p bundle_patterns
-
       # Find packages to remove based on bundle patterns
       bundles = []
       begin
