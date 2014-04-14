@@ -1,3 +1,5 @@
+require 'json'
+
 module CqTools
   module Configuration
 
@@ -28,12 +30,16 @@ module CqTools
       config['workspaces'][config['workspace']]
     end
 
+    def self.config_file_path
+      File.join(File.expand_path('~'), '.cq/cfg')
+    end
+
     def self.read_config
-      JSON.parse(File.open(usr_file, 'rb').read)
+      JSON.parse(File.open(config_file_path, 'rb').read)
     end
 
     def self.save_config(config)
-      File.open(usr_file, 'wb').write(JSON.pretty_generate(config))
+      File.open(config_file_path, 'wb').write(JSON.pretty_generate(config))
     end
 
   end

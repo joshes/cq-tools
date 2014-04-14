@@ -1,60 +1,124 @@
+# require 'open3'
 require_relative 'cq_common'
 require_relative 'cq_configuration'
 
+class Numeric
+  def duration
+    secs = self.to_int
+    mins = secs / 60
+    hours = mins / 60
+    days = hours / 24
+    if days > 0
+      "#{days} days and #{hours % 24} hours"
+    elsif hours > 0
+      "#{hours} hours and #{mins % 60} minutes"
+    elsif mins > 0
+      "#{mins} minutes and #{secs % 60} seconds"
+    elsif secs >= 0
+      "#{secs} seconds"
+    end
+  end
+end
+
 module CqTools
-	module Build
+  module Build
 
-		include CqTools::Common
-		include CqTools::Configuration
+    def self.quit(msg, status)
+      puts msg if msg
+      exit(status)
+      `tput bel` # Ding - we're done
+    end
 
-		def self.build_project(workspace_path, proj_config, profiles, clean, test, offline, skip_test_flags)
-			proj_id = proj_config['id']
-			proj_path = proj_config['path']
-			project = File.join(workspace_path, proj_path.nil? ? proj_id : proj_path)
-			str_profiles = profiles.length == 0 ? '' : " -P #{profiles.join(',')} "
-			str_clean = clean ? ' --clean ' : ''
-			str_test = test ? skip_test_flags.join(' ') : ''
-			str_offline = offline ? ' --offline ' : ''
-			puts "mvn #{project} #{str_clean}#{str_profiles}#{str_test}#{str_offline}"
-		end
+    def self.build_info(cmd, working_dir)
+      <<-EOS
 
-		def self.maven_exec(argv)
+BUILD INFO:
+==========
 
-			# Read args
-			clean = arg_set? argv, '-c'
-			test = arg_set? argv, '-t'
-			offline = arg_set? argv, '-o'
-			requested_id = argv.last # TODO validate this - not necessarily set
+Working directory: #{working_dir}
+Executing: #{cmd}
+Time: #{Time.now}
 
-			# Read configuration
-			config = read_config
-			build_config = configured_build(config)
-			workspace_config = workspace(config)
-			profiles = build_config['profiles']
-			skip_test_flags = build_config['skipTestFlags']
-			projects = build_config['projects']
-			groups = build_config['groups']
+      EOS
+    end
 
-			# Find the group/project configuration based on incoming project name, groups get priority
-			projects_to_build = []
-			group_config = groups.select { |c| c['id'] == requested_id }
-			if group_config.length > 0
-				project_ids = group_config['projects']
-				projects_to_build = projects.select { |p| project_ids.include? p['id'] }
-			else
-				projects_to_build = projects.select { |c| c['id'] == requested_id }
-			end
+    def self.build_project(project_path, profiles, clean, test, offline, skip_test_flags)
+      cmd = [
+          'mvn',
+          clean ? 'clean' : nil,
+          'install',
+          offline ? '--offline' : nil,
+          profiles.length == 0 ? nil : "-P #{profiles.join(',')}",
+          test ? nil : skip_test_flags.join(' ')
+      ].select { |c| c != nil }.join(' ')
 
-			# Only build each once
-			projects_to_build.uniq!
+      puts build_info(cmd, project_path)
 
-			# Build 
+      Dir.chdir(project_path) {
+        err = false
+        IO.popen(cmd) { |io|
+          while (line = io.gets) do
+            err = true if line.include? 'BUILD FAILURE'
+            puts line
+          end
+        }
+        if err
+          quit('Build errors - quitting', 1)
+        end
+      }
+    end
+
+    def self.maven_exec(argv)
+
+      # Read args
+      clean = Common::arg_set? argv, '-c'
+      test = Common::arg_set? argv, '-t'
+      offline = Common::arg_set? argv, '-o'
+      requested_id = argv.last # TODO validate this - not necessarily set
+
+      # Read configuration
+      config = Configuration::read_config
+      build_config = Configuration::configured_build(config)
+      workspace_config = Configuration::workspace(config)
+      profiles = build_config['profiles']
+      skip_test_flags = build_config['skipTestFlags']
+      projects = build_config['projects']
+      groups = build_config['groups']
+
+      # Find the group/project configuration based on incoming project name, groups get priority
+      group_config = groups.select { |c| c['id'] == requested_id }
+      if group_config.length > 0
+        project_ids = group_config['projects']
+        projects_to_build = projects.select { |p| project_ids.include? p['id'] }
+      else
+        projects_to_build = projects.select { |c| c['id'] == requested_id }
+      end
+
+      # Only build each once
+      projects_to_build.uniq!
+      if projects_to_build.length == 0
+        quit("No configured projects/groups were found with id:#{requested_id}", 1)
+      end
+
+      build_start_time = Time.now
+
+      # Ensure we have valid paths & build
       projects_to_build.each { |proj_config|
-				build_project(workspace_config['path'], proj_config, profiles, clean, test, offline, skip_test_flags)
-			}
-		end
+        project_id = proj_config['id']
+        project_path = proj_config['path']
+        project_profiles = profiles + proj_config['profiles']
+        workspace_path = workspace_config['path']
+        abs_project_path = File.join(workspace_path, project_path.nil? ? project_id : project_path)
+        if !Dir.exists?(abs_project_path)
+          quit("Project #{project_id} not found at: #{abs_project_path}", 1)
+        end
+        build_project(abs_project_path, project_profiles, clean, test, offline, skip_test_flags)
+      }
 
-	end
+      quit("Done. Duration: #{(Time.now - build_start_time).duration}", 0)
+
+    end
+  end
 end
 
 CqTools::Build::maven_exec(ARGV)
