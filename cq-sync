@@ -1,3 +1,3 @@
 #!/bin/sh
 
-DirectoryWatcher ${CQ_TOOLS_WORKSPACE} "cq-filewatch-handler.rb --file=%file%"
+DirectoryWatcher -watch ${CQ_TOOLS_WORKSPACE} -filter ".*\/jcr_root\/.*" -callback "cq_filewatch_handler.rb --file=%file%"
