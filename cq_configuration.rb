@@ -9,13 +9,13 @@ module CqTools
     def self.configured_host(config)
       server_index = config['server']
       server_config = config['servers'][server_index]
-      is_secure = to_bool server_config['secure']
+      is_secure = Common::to_bool server_config['secure']
       scheme = is_secure ? 'https' : 'http'
       "#{scheme}://#{server_config['host']}:#{server_config['port']}"
     end
 
     def self.configured_user(config)
-      config['server']['user']
+      config['servers'][config['server'].to_i]['user']
     end
 
     def self.configured_build(config)
@@ -23,7 +23,7 @@ module CqTools
     end
 
     def self.configured_pass(config)
-      config['server']['pass']
+      config['servers'][config['server']]['pass']
     end
 
     def self.workspace(config)

@@ -22,7 +22,7 @@
                     "/apps/my-app"
                 ],
                 "bundles": [
-                    "/^my-project-.*\.zip/"
+                    "^my-project-.*\.zip$"
                 ]
             },
             "build" : {

@@ -26,7 +26,7 @@ module CqTools
     end
 
     def self.to_bool(s)
-      s.downcase == 'true' || s == '1'
+      s == 'true' || s == '1'
     end
     
   end
