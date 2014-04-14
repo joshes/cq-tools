@@ -3,6 +3,12 @@
 #
 # Checks a client-lib to spot minification errors
 #
+# Usage:
+# cq-checklib ~/Workspace/project/src/main/content/jcr_root/apps/component/clientlibs
+#
+# Caveat in example:
+# components/clientlibs should contain a js.txt file
+#
 
 puts 'install brew first please or set the path to the closure compiler' if '' == `which brew`
 
