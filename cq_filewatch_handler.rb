@@ -23,10 +23,7 @@ require_relative 'cq_common'
 require_relative 'cq_configuration'
 
 module CqTools
-  module FilewatchHandler
-
-    include CqTools::Common
-    include CqTools::Configuration
+  module FileWatchHandler
 
     DEBUG = false
     RAISE_ERRORS = false
@@ -95,7 +92,7 @@ module CqTools
       `#{cmd}`
     end
 
-    # Route keys map to handler keys ... 
+    # Route keys map to handler keys ...
     def self.routes
       {
           :file => [
@@ -134,12 +131,12 @@ module CqTools
     # Builds up the handler context and some conveniences
     def self.build_context(argv)
       ctx = {
-          :file => arg_else(argv, '--file', nil),
-          :user => arg_else(argv, '--user', 'admin'),
-          :pass => arg_else(argv, '--pass', 'admin'),
-          :host => arg_else(argv, '--host', 'localhost'),
-          :port => arg_else(argv, '--port', '4502'),
-          :protocol => arg_set?(argv, '--secure') ? 'https' : 'http',
+          :file => Common::arg_else(argv, '--file', nil),
+          :user => Common::arg_else(argv, '--user', 'admin'),
+          :pass => Common::arg_else(argv, '--pass', 'admin'),
+          :host => Common::arg_else(argv, '--host', 'localhost'),
+          :port => Common::arg_else(argv, '--port', '4502'),
+          :protocol => Common::arg_set?(argv, '--secure') ? 'https' : 'http',
       }
       ctx[:url] = "#{ctx[:protocol]}://#{ctx[:host]}:#{ctx[:port]}"
       ctx[:jcr_path] = Pathname.new(ctx[:file].split('jcr_root')[1])
@@ -188,19 +185,18 @@ module CqTools
       }
     end
 
-    # Guards
-    supplied_file = arg_else(ARGV, '--file', nil)
-    if supplied_file.nil?
-      usage
-      exit
-    end
-
-    raise 'File is not valid jcr_root path!' if supplied_file !~ /.*\/?jcr_root\/.*/ and RAISE_ERRORS
-
-    # Entry-point
-    ctx = build_context(ARGV)
-    handle(ctx)
-
-
   end
 end
+
+# Guards
+supplied_file = CqTools::Common::arg_else(ARGV, '--file', nil)
+if supplied_file.nil?
+  CqTools::FileWatchHandler::usage
+  exit(1)
+end
+
+raise 'File is not valid jcr_root path!' if supplied_file !~ /.*\/?jcr_root\/.*/ and RAISE_ERRORS
+
+# Entry-point
+ctx = CqTools::FileWatchHandler::build_context(ARGV)
+CqTools::FileWatchHandler::handle(ctx)
