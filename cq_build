@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 require_relative 'cq_common'
 require_relative 'cq_configuration'
 
