@@ -2,8 +2,11 @@
 
 require_relative 'cq_configuration_setter'
 
-include CqTools::ConfigurationSetter
-
-exec_switch 'workspace', 'workspaces' do |branch|
-    write_env 'CQ_TOOLS_WORKSPACE', branch['path']
+module CqTools
+  module SetServer
+    ConfigurationSetter::exec_switch 'workspace', 'workspaces' do |server|
+      ConfigurationSetter::write_env 'CQ_TOOLS_WORKSPACE', server['path']
+      ConfigurationSetter::reload_env
+    end
+  end
 end
