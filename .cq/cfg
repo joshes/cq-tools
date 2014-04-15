@@ -22,7 +22,8 @@
                     "/apps/my-app"
                 ],
                 "bundles": [
-                    "^my-project-.*\.zip$"
+                    "^my-project-.*\.zip$",
+                    "^cq-tools.*\.zip$"
                 ]
             },
             "build" : {

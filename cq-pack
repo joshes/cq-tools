@@ -1,0 +1,79 @@
+#!/usr/bin/env ruby
+
+require 'uri'
+require 'net/http'
+require 'openssl'
+require 'net/http/post/multipart'
+require 'json'
+
+module CqTools
+  module Pack
+
+    def self.next_id
+      ((rand * 5000) + 1).floor
+    end
+
+    def self.exec(user, pass, name, target)
+      target_uri = URI(target)
+      Net::HTTP.new(target_uri.host, target_uri.port, 'localhost', '8888').start { |http|
+
+        #
+        # Build filters from all data connected to target
+        #
+        filters = ['/content/joshes']
+
+        #
+        # Create package
+        #
+        request = Net::HTTP::Post.new('/crx/packmgr/service/exec.json?cmd=create')
+        request.basic_auth(user, pass)
+        request.set_form_data(
+            {
+                :_charset_ => 'utf-8',
+                :packageName => name,
+                :packageVersion => '1.0',
+                :groupName => 'cq-tools-generated'
+            })
+        http.use_ssl = target_uri.scheme == 'https'
+        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+        response = JSON.parse(http.request(request).body)
+        # TODO may be better/nicer to allow overwriting packages if its the same name (delete and retry)
+        unless response['success']
+          puts "Failed to create package! Cause: #{response['msg']}"
+          exit(1)
+        end
+        package_path = response['path']
+
+        #
+        # Add filters to the newly created package
+        #
+        filters_json = filters.map { |f| {:root => f, :rules => []}.to_json }.flatten
+        form_data = {
+            :_charset_ => 'utf-8',
+            :path => package_path,
+            :filter => filters_json.to_s,
+            :packageName => name,
+            :packageVersion => '1.0',
+            :groupName => 'cq-tools-generated'
+        }
+        filters.each { |f| form_data["ext-comp-#{Pack::next_id}"] = f }
+        request = Net::HTTP::Post::Multipart.new('/crx/packmgr/update.jsp', form_data)
+        request.basic_auth(user, pass)
+        http.use_ssl = target_uri.scheme == 'https'
+        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+        response = JSON.parse(http.request(request).body)
+        unless response['success']
+          puts "Failed to add filters! Cause: #{response['msg']}"
+          exit(1)
+        end
+      }
+    end
+  end
+end
+
+# TODO refactor how all of these tools are consumed/used for re-usability
+# TODO validate incoming args - dirty for now to facilitate getting functional quickly
+# TODO needs usage instructions
+
+# e.g. cq-pack admin admin my-package http://localhost:4502/cf#/content/joshes.html
+CqTools::Pack::exec(ARGV[0], ARGV[1], ARGV[2], ARGV[3])
