@@ -13,59 +13,66 @@ module CqTools
       ((rand * 5000) + 1).floor
     end
 
-    def self.exec(user, pass, name, target)
+    def self.create_package(http, user, pass, target_uri, package_name, version='1.0', group_name='cq-tools-generated')
+      request = Net::HTTP::Post.new('/crx/packmgr/service/exec.json?cmd=create')
+      request.basic_auth(user, pass)
+      request.set_form_data(
+          {
+              :_charset_ => 'utf-8',
+              :packageName => package_name,
+              :packageVersion => version,
+              :groupName => group_name
+          })
+      http.use_ssl = target_uri.scheme == 'https'
+      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+      response = JSON.parse(http.request(request).body)
+      # TODO may be better/nicer to allow overwriting packages if its the same name (delete and retry)
+      unless response['success']
+        puts "Failed to create package! Cause: #{response['msg']}"
+        exit(1)
+      end
+      response['path']
+    end
+
+    def self.set_filters(http, user, pass, target_uri, package_path, package_name, filters)
+      filters_json = filters.map { |f| {:root => f, :rules => []}.to_json }.flatten
+      form_data = {
+          :_charset_ => 'utf-8',
+          :path => package_path,
+          :filter => filters_json.to_s,
+          :packageName => package_name,
+          :packageVersion => '1.0',
+          :groupName => 'cq-tools-generated'
+      }
+      filters.each { |f| form_data["ext-comp-#{Pack::next_id}"] = f }
+      request = Net::HTTP::Post::Multipart.new('/crx/packmgr/update.jsp', form_data)
+      request.basic_auth(user, pass)
+      http.use_ssl = target_uri.scheme == 'https'
+      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+      response = JSON.parse(http.request(request).body)
+      unless response['success']
+        puts "Failed to add filters! Cause: #{response['msg']}"
+        exit(1)
+      end
+    end
+
+    def self.collect_filters(http, user, pass, target_uri, filters=[])
+      filters.push '/content/joshes'
+    end
+
+    def content_path(uri)
+      uri.hash.nil? ? uri.path : uri.hash.partition('#').last
+    end
+
+    def self.exec(user, pass, package_name, target)
       target_uri = URI(target)
-      Net::HTTP.new(target_uri.host, target_uri.port, 'localhost', '8888').start { |http|
-
-        #
-        # Build filters from all data connected to target
-        #
-        filters = ['/content/joshes']
-
-        #
-        # Create package
-        #
-        request = Net::HTTP::Post.new('/crx/packmgr/service/exec.json?cmd=create')
-        request.basic_auth(user, pass)
-        request.set_form_data(
-            {
-                :_charset_ => 'utf-8',
-                :packageName => name,
-                :packageVersion => '1.0',
-                :groupName => 'cq-tools-generated'
-            })
-        http.use_ssl = target_uri.scheme == 'https'
-        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-        response = JSON.parse(http.request(request).body)
-        # TODO may be better/nicer to allow overwriting packages if its the same name (delete and retry)
-        unless response['success']
-          puts "Failed to create package! Cause: #{response['msg']}"
-          exit(1)
-        end
-        package_path = response['path']
-
-        #
-        # Add filters to the newly created package
-        #
-        filters_json = filters.map { |f| {:root => f, :rules => []}.to_json }.flatten
-        form_data = {
-            :_charset_ => 'utf-8',
-            :path => package_path,
-            :filter => filters_json.to_s,
-            :packageName => name,
-            :packageVersion => '1.0',
-            :groupName => 'cq-tools-generated'
-        }
-        filters.each { |f| form_data["ext-comp-#{Pack::next_id}"] = f }
-        request = Net::HTTP::Post::Multipart.new('/crx/packmgr/update.jsp', form_data)
-        request.basic_auth(user, pass)
-        http.use_ssl = target_uri.scheme == 'https'
-        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-        response = JSON.parse(http.request(request).body)
-        unless response['success']
-          puts "Failed to add filters! Cause: #{response['msg']}"
-          exit(1)
-        end
+      do_proxy = false
+      proxy_host = do_proxy ? 'localhost' : nil
+      proxy_port = do_proxy ? '8888' : nil
+      Net::HTTP.new(target_uri.host, target_uri.port, proxy_host, proxy_port).start { |http|
+        filters = Pack::collect_filters(http, user, pass, target_uri)
+        package_path = Pack::create_package(http, user, pass, target_uri, package_name)
+        Pack::set_filters(http, user, pass, target_uri, package_path, package_name, filters)
       }
     end
   end
