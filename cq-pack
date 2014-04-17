@@ -7,6 +7,7 @@ require 'net/http/post/multipart'
 require 'json'
 require 'nokogiri'
 require 'pathname'
+require 'tmpdir'
 
 module CqTools
   module Pack
@@ -15,7 +16,7 @@ module CqTools
       ((rand * 5000) + 1).floor
     end
 
-    def self.create_package(http, user, pass, target_uri, package_name, version='1.0', group_name='cq-tools-generated')
+    def self.create_package(http, user, pass, target_uri, package_name, group_name, version='1.0')
       request = Net::HTTP::Post.new('/crx/packmgr/service/exec.json?cmd=create')
       request.basic_auth(user, pass)
       request.set_form_data(
@@ -37,7 +38,6 @@ module CqTools
     end
 
     def self.set_filters(http, user, pass, target_uri, package_path, package_name, filters)
-      puts filters
       filters_json = filters.map { |f| {:root => f, :rules => []}.to_json }.flatten
       form_data = {
           :_charset_ => 'utf-8',
@@ -63,10 +63,45 @@ module CqTools
       !path.empty? && path != '#' && !(path =~ /.*:\/\/.*|^\/content\/dam\/.*$/)
     end
 
+    def self.build_package(http, user, pass, target_uri, package_name, group)
+      request = Net::HTTP::Get.new("/crx/packmgr/service.jsp?cmd=build&name=#{package_name}")
+      request.basic_auth(user, pass)
+      http.use_ssl = target_uri.scheme == 'https'
+      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+      response = Nokogiri::XML(http.request(request).body)
+      unless response.at_xpath('//response/status/@code').text == '200'
+        puts "Failed to build package! Cause: #{response.at_xpath('//response/status/text()')}"
+        exit(1)
+      end
+    end
+
+    def self.download_package(http, user, pass, target_uri, package_name, group, version='1.0')
+      request = Net::HTTP::Get.new("/crx/packmgr/service.jsp?cmd=get&name=#{package_name}")
+      request.basic_auth(user, pass)
+      http.use_ssl = target_uri.scheme == 'https'
+      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+      resp = http.request(request)
+
+      download_dir = File.join(File.expand_path('~'), '.cq/packages')
+      FileUtils.makedirs download_dir
+      download_file = File.join(download_dir, "#{package_name}-#{version}.zip")
+      FileUtils.rm(download_file) if File.exists? download_file
+
+      # TODO check for response error
+
+      open(download_file, "wb") { |file|
+        file.write(resp.body)
+      }
+
+      download_file
+    end
+
     def self.collect_filters(http, user, pass, target_uri, filters=[])
       target_path = target_uri.path.gsub(/\.html$/, '')
 
-      puts target_path
+      puts "Adding: #{target_path}"
 
       filters.push target_path
       request = Net::HTTP::Get.new(target_path + '.xml')
@@ -105,10 +140,15 @@ module CqTools
       do_proxy = false
       proxy_host = do_proxy ? 'localhost' : nil
       proxy_port = do_proxy ? '8888' : nil
+      package_group = 'cq-tool-generated'
       Net::HTTP.new(target_uri.host, target_uri.port, proxy_host, proxy_port).start { |http|
         filters = Pack::collect_filters(http, user, pass, target_uri)
-        package_path = Pack::create_package(http, user, pass, target_uri, package_name)
+        package_path = Pack::create_package(http, user, pass, target_uri, package_name, package_group)
         Pack::set_filters(http, user, pass, target_uri, package_path, package_name, filters)
+        Pack::build_package(http, user, pass, target_uri, package_name, package_group)
+        downloaded_file = Pack::download_package(http, user, pass, target_uri, package_name, package_group)
+        puts "Downloaded: #{downloaded_file}"
+        `open #{Pathname(downloaded_file).dirname}`
       }
     end
   end
