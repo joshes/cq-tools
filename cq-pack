@@ -5,6 +5,8 @@ require 'net/http'
 require 'openssl'
 require 'net/http/post/multipart'
 require 'json'
+require 'nokogiri'
+require 'pathname'
 
 module CqTools
   module Pack
@@ -35,6 +37,7 @@ module CqTools
     end
 
     def self.set_filters(http, user, pass, target_uri, package_path, package_name, filters)
+      puts filters
       filters_json = filters.map { |f| {:root => f, :rules => []}.to_json }.flatten
       form_data = {
           :_charset_ => 'utf-8',
@@ -56,8 +59,41 @@ module CqTools
       end
     end
 
+    def self.should_collect(path)
+      !path.empty? && path != '#' && !(path =~ /.*:\/\/.*|^\/content\/dam\/.*$/)
+    end
+
     def self.collect_filters(http, user, pass, target_uri, filters=[])
-      filters.push '/content/joshes'
+      target_path = target_uri.path.gsub(/\.html$/, '')
+
+      puts target_path
+
+      filters.push target_path
+      request = Net::HTTP::Get.new(target_path + '.xml')
+      request.basic_auth(user, pass)
+      http.use_ssl = target_uri.scheme == 'https'
+      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+      response = http.request(request)
+
+      unless response.code != 200
+        puts 'Failed to collect filters!'
+        exit(1)
+      end
+
+      xml = Nokogiri::XML(response.body)
+
+      # Add potential path targets as necessary
+      %w(targetPath resourcePath fileReference phoneFileReference).each { |attr_name|
+        xml.xpath("//@#{attr_name}").each { |attr|
+          path = attr.text
+          if Pack::should_collect path
+            target_uri.path = path
+            Pack::collect_filters(http, user, pass, target_uri, filters) # recurse
+          end
+        }
+      }
+      filters.uniq
     end
 
     def content_path(uri)
