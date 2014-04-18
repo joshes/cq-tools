@@ -26,8 +26,8 @@ module CqTools
 
     def self.quit(msg, status)
       puts msg if msg
-      exit(status)
       `tput bel` # Ding - we're done
+      exit(status)
     end
 
     def self.build_info(cmd, working_dir)
