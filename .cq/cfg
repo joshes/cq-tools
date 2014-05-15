@@ -1,7 +1,7 @@
 {
     "server": 0,
     "workspace": 0,
-    "debug": false,
+    "debug": "false",
     "servers": [
         {
             "id": "default-5.5.0",
@@ -22,8 +22,14 @@
                     "/apps/my-app"
                 ],
                 "bundles": [
-                    "^my-project-.*\.zip$",
-                    "^cq-tools.*\.zip$"
+                    {
+                        "group": "",
+                        "name": "my-default-project"
+                    },
+                    {
+                        "group": "com.my.company",
+                        "name": "my-project-in-a-group"
+                    }
                 ]
             },
             "build" : {
