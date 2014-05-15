@@ -23,6 +23,26 @@ brew tap joshes/homebrew-tap
 brew install cq-tools
 ```
 
+### Install manually
+
+Bash gist below, but follow the comments if you want to install other ways.
+
+```sh
+# Get the stuff
+git clone https://github.com/joshes/cq-tools.git
+git clone https://github.com/joshes/directory-watcher.git
+
+# Build the DirectoryWatcher and add to the path
+cd directory-watcher
+mvn clean package
+echo "export PATH=`pwd`/directory-watcher/target:$PATH" >> ~/.bash_profile
+
+# Install the cq-tools default configuration and add to path
+cp cq-tools/.cq ~
+echo "source ~/.cq/env" >> ~/.bash_profile
+echo "export PATH=`pwd`/cq-tools:$PATH" >> ~/.bash_profile
+```
+
 ## Configuration
 
 1. Add 'source ~/.cq/env' to ~/.bash_profile
