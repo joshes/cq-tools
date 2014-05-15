@@ -27,15 +27,18 @@ brew install cq-tools
 
 Bash gist below, but follow the comments if you want to install other ways.
 
+Open a terminal and run the following:
+
 ```sh
 # Get the stuff
 git clone https://github.com/joshes/cq-tools.git
 git clone https://github.com/joshes/directory-watcher.git
 
 # Build the DirectoryWatcher and add to the path
-cd directory-watcher
-mvn clean package
+mvn clean package -f directory-watcher/pom.xml
+echo "exec java  -jar `pwd`/directory-watcher/target/DirectoryWatcher.jar $@" >> directory-watcher/target/DirectoryWatcher
 echo "export PATH=`pwd`/directory-watcher/target:$PATH" >> ~/.bash_profile
+chmod a+x directory-watcher/target/DirectoryWatcher
 
 # Install the cq-tools default configuration and add to path
 cp cq-tools/.cq ~
@@ -51,3 +54,12 @@ echo "export PATH=`pwd`/cq-tools:$PATH" >> ~/.bash_profile
 3. Run: cq-set-workspace and choose the workspace you want to use for the current session
 
 These scripts effectively manage the ~/.cq/env file for you based on your configuration settings.
+
+Note that after running cq-set-* you should run 
+
+```sh
+source ~/.cq/env
+```
+
+On any open terminals for the changes to take effect.
+
