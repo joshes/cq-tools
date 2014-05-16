@@ -35,7 +35,7 @@ module CqTools
     end
 
     def self.write_env(env_key, val)
-      puts "#{env_key}=#{val} "
+      puts "Setting #{env_key} => #{val}"
       file_reader = File.open(Common::env_file, 'rb')
       contents = file_reader.read
       file_reader.close
@@ -46,7 +46,7 @@ module CqTools
     end
 
     def self.reload_env
-      `#{Common::env_file}`
+      puts "Ensure you run: 'source ~/.cq/env' in any open terminals for changes to take effect."
     end
 
     def self.exec_switch(key_single, key_multi)
