@@ -41,8 +41,13 @@ module CqTools
       pkg_xml.xpath('//package').each {|package|
         name = (package > 'name/text()').text
         group = (package > 'group/text()').text
+        download_name = (package > 'downloadName/text()').text
         clean_opts['bundles'].each {|bundle|
-          bundles.push(bundle) if name.eql? bundle['name'] and group.eql? bundle['group']
+          if name.eql? bundle['name'] and group.eql? bundle['group']
+            # Use the download name to spec the file when interacting with the service later
+            bundle['name'] = download_name
+            bundles.push(bundle) 
+          end 
         }
       }
 
