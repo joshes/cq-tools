@@ -34,6 +34,9 @@ Open a terminal and run the following:
 git clone https://github.com/joshes/cq-tools.git
 git clone https://github.com/joshes/directory-watcher.git
 
+# Ensure you have these gems
+gem install activesupport json nokogiri
+
 # Build the DirectoryWatcher and add to the path
 mvn clean package -f directory-watcher/pom.xml
 echo "exec java  -jar `pwd`/directory-watcher/target/DirectoryWatcher.jar $@" >> directory-watcher/target/DirectoryWatcher
