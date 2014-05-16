@@ -26,7 +26,7 @@ gem install activesupport json nokogiri
 # Build the DirectoryWatcher and add to the path
 cd directory-watcher
 mvn clean package
-echo "exec java  -jar `pwd`/target/DirectoryWatcher.jar \"$@\"" >> DirectoryWatcher
+echo "exec java  -jar `pwd`/target/DirectoryWatcher.jar \"\$@\"" >> DirectoryWatcher
 echo "export PATH=`pwd`:$PATH" >> ~/.bash_profile
 chmod a+x DirectoryWatcher
 
