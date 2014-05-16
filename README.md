@@ -32,7 +32,7 @@ chmod a+x DirectoryWatcher
 
 # Install the cq-tools default configuration and add to path
 cd ../cq-tools
-cp .cq ~
+cp -r .cq ~
 echo "source ~/.cq/env" >> ~/.bash_profile
 echo "export PATH=`pwd`:$PATH" >> ~/.bash_profile
 ```
