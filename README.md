@@ -20,6 +20,9 @@ Bash gist below, but follow the comments if you want to install other ways.
 git clone https://github.com/joshes/cq-tools.git
 git clone https://github.com/joshes/directory-watcher.git
 
+# Ensure you have these gems
+gem install activesupport json nokogiri
+
 # Build the DirectoryWatcher and add to the path
 cd directory-watcher
 mvn clean package
