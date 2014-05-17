@@ -43,17 +43,19 @@ Time: #{Time.now}
       EOS
     end
 
-    def build_project(project_path, profiles, clean, test, offline, skip_test_flags)
+    def build_project(project_path, profiles, clean, test, offline, skip_test_flags, additional_flags)
       cmd = [
           'mvn',
           clean ? 'clean' : nil,
           'install',
           offline ? '--offline' : nil,
           profiles.length == 0 ? nil : "-P #{profiles.join(',')}",
-          test ? nil : skip_test_flags.join(' ')
+          test ? nil : skip_test_flags.join(' '),
+          additional_flags.empty? ? nil : additional_flags.join(' ')
       ].select { |c| c != nil }.join(' ')
 
       puts build_info(cmd, project_path)
+      exit 0
 
       Dir.chdir(project_path) {
         err = false
@@ -76,8 +78,19 @@ Time: #{Time.now}
       test = Common::arg_set? argv, '-t'
       offline = Common::arg_set? argv, '-o'
 
-      # TODO need the ability to pass arbitrary Java system args in
-      requested_id = argv.last
+      arg_count = 0
+      arg_count += 1 if clean
+      arg_count += 1 if test
+      arg_count += 1 if offline
+
+      requested_id = argv[arg_count]
+      arg_count += 1
+      additional_flags = []
+      if argv.length > arg_count
+        from = arg_count
+        length = argv.length - from
+        additional_flags = argv[from, length]
+      end
 
       # Read configuration
       config = ConfigurationReader.new
@@ -115,7 +128,7 @@ Time: #{Time.now}
         if !Dir.exists?(abs_project_path)
           quit("Project #{project_id} not found at: #{abs_project_path}", 1)
         end
-        build_project(abs_project_path, project_profiles, clean, test, offline, skip_test_flags)
+        build_project(abs_project_path, project_profiles, clean, test, offline, skip_test_flags, additional_flags)
       }
 
       quit("Done. Duration: #{(Time.now - build_start_time).duration}", 0)
