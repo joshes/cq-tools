@@ -7,7 +7,7 @@ require 'nokogiri'
 require_relative 'cq_common'
 require_relative 'cq_configuration'
 
-module CqTools
+module Cq
   module Clean
 
     # Get all keys from hash recursively
@@ -24,25 +24,23 @@ module CqTools
 
     def self.exec
 
-      # TODO wrap the configuration into an object ...
+      config = ConfigurationReader.new
+      clean_config = config.active_project.config.clean_config
 
-      config = Configuration::read_config
-      verbose = Common::to_bool(config['debug'])
-      host = Configuration::configured_host(config)
-      user = Configuration::configured_user(config)
-      pass = Configuration::configured_pass(config)
-      workspace = Configuration::workspace(config)
-      clean_opts = workspace['clean']
-      nodes = clean_opts['nodes']
+      verbose = config.is_debug?
+      server = config.active_server
+      user = server.user
+      pass = server.pass
+      nodes = clean_config.nodes
 
       # Find packages to remove based on bundle patterns
       bundles = []
-      pkg_xml = Nokogiri::XML(open("#{host}/crx/packmgr/service.jsp?cmd=ls", :http_basic_authentication => [user, pass]).read)
+      pkg_xml = Nokogiri::XML(open("#{server.url}/crx/packmgr/service.jsp?cmd=ls", :http_basic_authentication => [user, pass]).read)
       pkg_xml.xpath('//package').each {|package|
         name = (package > 'name/text()').text
         group = (package > 'group/text()').text
         download_name = (package > 'downloadName/text()').text
-        clean_opts['bundles'].each {|bundle|
+        clean_config.bundles.each {|bundle|
           if name.eql? bundle['name'] and group.eql? bundle['group']
             # Use the download name to spec the file when interacting with the service later
             bundle['name'] = download_name
@@ -81,13 +79,13 @@ module CqTools
         name = bundle['name']
         path = (group.nil? || group.empty?) ? "#{name}" : "#{group}/#{name}"
         commands.each { |cmd|
-          `curl #{v} -X POST -H 'referer: app:/' -u #{user}:#{pass} -F cmd=#{cmd} #{host}/crx/packmgr/service/script.html/etc/packages/#{path}`
+          `curl #{v} -X POST -H 'referer: app:/' -u #{user}:#{pass} -F cmd=#{cmd} #{server.url}/crx/packmgr/service/script.html/etc/packages/#{path}`
         }
       }
 
       # Remove the nodes
       nodes.each { |path|
-        `curl #{v} -H 'referer: app:/' -F":operation=delete" #{host}#{path} -u #{user}:#{pass}`
+        `curl #{v} -H 'referer: app:/' -F":operation=delete" #{server.url}#{path} -u #{user}:#{pass}`
       }
 
       puts 'Done'
@@ -96,4 +94,4 @@ module CqTools
   end
 end
 
-CqTools::Clean::exec
+Cq::Clean::exec

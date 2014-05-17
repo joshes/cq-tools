@@ -9,7 +9,7 @@ require 'nokogiri'
 require 'pathname'
 require 'tmpdir'
 
-module CqTools
+module Cq
   module Pack
 
     def self.next_id
@@ -159,4 +159,4 @@ end
 # TODO needs usage instructions
 
 # e.g. cq-pack admin admin my-package http://localhost:4502/cf#/content/joshes.html
-CqTools::Pack::exec(ARGV[0], ARGV[1], ARGV[2], ARGV[3])
+Cq::Pack::exec(ARGV[0], ARGV[1], ARGV[2], ARGV[3])
