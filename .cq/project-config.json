@@ -1,0 +1,45 @@
+{
+    "clean": {
+        "nodes": [
+            "/apps/my-app"
+        ],
+        "bundles": [
+            {
+                "group": "",
+                "name": "my-default-project"
+            },
+            {
+                "group": "com.my.company",
+                "name": "my-project-in-a-group"
+            }
+        ]
+    },
+    "build": {
+        "profiles": [
+            "dev"
+        ],
+        "skipTestFlags": [
+            "-Dmaven.test.skip=true"
+        ],
+        "projects": [
+            {
+                "id": "my-project",
+                "profiles": ["install-all"]
+            },
+            {
+                "id": "sub-project",
+                "path": "my-project/sub-project",
+                "profiles": ["install-all"]
+            }
+        ],
+        "groups": [
+            {
+                "id": "all",
+                "projects": [
+                    "my-project",
+                    "sub-project"
+                ]
+            }
+        ]
+    }
+}

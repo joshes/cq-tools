@@ -5,8 +5,6 @@ Tools to make working with CQ/AEM a little faster/easier/better
 
 ## Requirements:
 
-### General
-
 1. Ruby
 2. Java 7
 3. DirectoryWatcher
