@@ -37,7 +37,7 @@ echo "export PATH=`pwd`:$PATH" >> ~/.bash_profile
 
 ## Configuration
 
-1. Edit ~/.cq/cfg to your requirements, adding as many servers and/or workspaces as required
+1. Edit ~/.cq/config.json & ~/.cq/project-config.json to your requirements, adding as many servers and/or workspaces as required
 2. Run: cq-set-server and choose the server you want to use for the current session
 3. Run: cq-set-workspace and choose the workspace you want to use for the current session
 
