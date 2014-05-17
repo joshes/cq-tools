@@ -1,12 +1,2 @@
-#!/usr/bin/env ruby
-
-require_relative 'cq_configuration_setter'
-
-module CqTools
-  module SetServer
-    ConfigurationSetter::exec_switch 'server', 'servers' do |server|
-      ConfigurationSetter::write_env 'CQ_TOOLS_SERVER', server['path']
-      ConfigurationSetter::reload_env
-    end
-  end
-end
+#!/bin/sh
+ruby cq_configuration_tool.rb server

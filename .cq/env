@@ -1,4 +1,0 @@
-#!/bin/sh
-
-export CQ_TOOLS_SERVER=
-export CQ_TOOLS_WORKSPACE=

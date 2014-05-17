@@ -1,5 +1,5 @@
-module CqTools
-  module Common
+module Cq
+  class Common
 
     # Returns the argument value from argv if found (format: --key=value) or default if not found
     def self.arg_else(argv, key, default)
@@ -21,8 +21,12 @@ module CqTools
       File.join(user_home_dir, '.cq/env')
     end
 
-    def self.usr_file
-      File.join(user_home_dir, '.cq/cfg')
+    def self.config_dir
+      File.join(user_home_dir, '.cq')
+    end
+
+    def self.config_file
+      File.join(config_dir, 'config.json')
     end
 
     def self.to_bool(s)

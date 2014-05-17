@@ -22,7 +22,7 @@ require 'nokogiri'
 require_relative 'cq_common'
 require_relative 'cq_configuration'
 
-module CqTools
+module Cq
   module FileWatchHandler
 
     DEBUG = false
@@ -189,14 +189,14 @@ module CqTools
 end
 
 # Guards
-supplied_file = CqTools::Common::arg_else(ARGV, '--file', nil)
+supplied_file = Cq::Common::arg_else(ARGV, '--file', nil)
 if supplied_file.nil?
-  CqTools::FileWatchHandler::usage
+  Cq::FileWatchHandler::usage
   exit(1)
 end
 
 raise 'File is not valid jcr_root path!' if supplied_file !~ /.*\/?jcr_root\/.*/ and RAISE_ERRORS
 
 # Entry-point
-ctx = CqTools::FileWatchHandler::build_context(ARGV)
-CqTools::FileWatchHandler::handle(ctx)
+ctx = Cq::FileWatchHandler::build_context(ARGV)
+Cq::FileWatchHandler::handle(ctx)
