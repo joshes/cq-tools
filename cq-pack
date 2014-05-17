@@ -10,13 +10,13 @@ require 'pathname'
 require 'tmpdir'
 
 module Cq
-  module Pack
+  class Pack
 
-    def self.next_id
+    def next_id
       ((rand * 5000) + 1).floor
     end
 
-    def self.create_package(http, user, pass, target_uri, package_name, group_name, version='1.0')
+    def create_package(http, user, pass, target_uri, package_name, group_name, version='1.0')
       request = Net::HTTP::Post.new('/crx/packmgr/service/exec.json?cmd=create')
       request.basic_auth(user, pass)
       request.set_form_data(
@@ -37,7 +37,7 @@ module Cq
       response['path']
     end
 
-    def self.set_filters(http, user, pass, target_uri, package_path, package_name, filters)
+    def set_filters(http, user, pass, target_uri, package_path, package_name, filters)
       filters_json = filters.map { |f| {:root => f, :rules => []}.to_json }.flatten
       form_data = {
           :_charset_ => 'utf-8',
@@ -59,11 +59,11 @@ module Cq
       end
     end
 
-    def self.should_collect(path)
+    def should_collect(path)
       !path.empty? && path != '#' && !(path =~ /.*:\/\/.*|^\/content\/dam\/.*$/)
     end
 
-    def self.build_package(http, user, pass, target_uri, package_name, group)
+    def build_package(http, user, pass, target_uri, package_name, group)
       request = Net::HTTP::Get.new("/crx/packmgr/service.jsp?cmd=build&name=#{package_name}")
       request.basic_auth(user, pass)
       http.use_ssl = target_uri.scheme == 'https'
@@ -76,7 +76,7 @@ module Cq
       end
     end
 
-    def self.download_package(http, user, pass, target_uri, package_name, group, version='1.0')
+    def download_package(http, user, pass, target_uri, package_name, group, version='1.0')
       request = Net::HTTP::Get.new("/crx/packmgr/service.jsp?cmd=get&name=#{package_name}")
       request.basic_auth(user, pass)
       http.use_ssl = target_uri.scheme == 'https'
@@ -98,7 +98,7 @@ module Cq
       download_file
     end
 
-    def self.collect_filters(http, user, pass, target_uri, filters=[])
+    def collect_filters(http, user, pass, target_uri, filters=[])
       target_path = target_uri.path.gsub(/\.html$/, '')
 
       puts "Adding: #{target_path}"
@@ -135,7 +135,7 @@ module Cq
       uri.hash.nil? ? uri.path : uri.hash.partition('#').last
     end
 
-    def self.exec(user, pass, package_name, target)
+    def exec(user, pass, package_name, target)
       target_uri = URI(target)
       do_proxy = false
       proxy_host = do_proxy ? 'localhost' : nil
@@ -159,4 +159,4 @@ end
 # TODO needs usage instructions
 
 # e.g. cq-pack admin admin my-package http://localhost:4502/cf#/content/joshes.html
-Cq::Pack::exec(ARGV[0], ARGV[1], ARGV[2], ARGV[3])
+Cq::Pack.new.exec(ARGV[0], ARGV[1], ARGV[2], ARGV[3])
