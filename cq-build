@@ -71,7 +71,26 @@ Time: #{Time.now}
       }
     end
 
+    def help
+      <<-EOS
+Usage: cq-build [-cto] <project> [options]
+
+Options:
+ -c          Performs a clean build
+ -t          Run tests (Disabled by default)
+ -o          Run in offline mode
+ <project>   A project (or group) described in the project configuration
+ [options]   Any additional Maven or JVM system option flags
+
+      EOS
+    end
+
     def maven_exec(argv)
+
+      if argv.empty?
+        puts help
+        exit 1
+      end
 
       # Read args
       clean = Common::arg_set? argv, '-c'
@@ -90,6 +109,11 @@ Time: #{Time.now}
         from = arg_count
         length = argv.length - from
         additional_flags = argv[from, length]
+      end
+
+      if requested_id.nil?
+        puts help
+        exit 1
       end
 
       # Read configuration
