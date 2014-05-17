@@ -54,7 +54,7 @@ module Cq
     end
   end
 
-  class BuildConfiguration
+  class BuildConfig
     attr_reader :global_profiles, :skip_test_flags, :projects, :groups
 
     def initialize(build_json)
@@ -66,13 +66,13 @@ module Cq
     end
   end
 
-  class ProjectConfiguration
-    attr_reader :clean_configuration, :build_configuration
+  class ProjectConfig
+    attr_reader :clean_config, :build_config
 
     def initialize(config_file)
       @json = JSON.parse(File.open(config_file, 'rb').read)
-      @clean_configuration = Cq::CleanConfiguration.new @json['clean']
-      @build_configuration = Cq::BuildConfiguration.new @json['build']
+      @clean_config = Cq::CleanConfiguration.new @json['clean']
+      @build_config = Cq::BuildConfig.new @json['build']
     end
   end
 
@@ -84,7 +84,7 @@ module Cq
       @id = project_json['id']
       @path = project_json['path']
       @config_path = File.join Cq::Common::config_dir, project_json['config']
-      @config = Cq::ProjectConfiguration.new File.expand_path @config_path
+      @config = Cq::ProjectConfig.new File.expand_path @config_path
     end
   end
 
