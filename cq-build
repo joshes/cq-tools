@@ -75,7 +75,9 @@ Time: #{Time.now}
       clean = Common::arg_set? argv, '-c'
       test = Common::arg_set? argv, '-t'
       offline = Common::arg_set? argv, '-o'
-      requested_id = argv.last # TODO validate this - not necessarily set
+
+      # TODO need the ability to pass arbitrary Java system args in
+      requested_id = argv.last
 
       # Read configuration
       config = ConfigurationReader.new
