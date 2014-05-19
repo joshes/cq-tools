@@ -118,11 +118,17 @@ module Cq
     end
 
     def set_active_project(index)
-      @json['project'] = index if index >= 0 and index < @json['projects'].length
+      if index >= 0 and index < @json['projects'].length
+        @json['project'] = index
+        @project = index
+      end
     end
 
     def set_active_server(index)
-      @json['server'] = index if index >= 0 and index < @json['servers'].length
+      if index >= 0 and index < @json['servers'].length
+        @json['server'] = index
+        @server = index
+      end
     end
 
   end

@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 require_relative 'cq_common'
 require_relative 'cq_configuration'
 
@@ -10,7 +12,8 @@ module Cq
       contents = []
       contents.push "export CQ_TOOLS_SERVER=#{config_reader.active_server.path}"
       contents.push "export CQ_TOOLS_PROJECT=#{config_reader.active_project.path}"
-      file_writer.write(contents.join("\n"))
+      str_out = contents.join("\n")
+      file_writer.write(str_out)
       file_writer.close
     end
 
