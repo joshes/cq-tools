@@ -55,7 +55,6 @@ Time: #{Time.now}
       ].select { |c| c != nil }.join(' ')
 
       puts build_info(cmd, project_path)
-      exit 0
 
       Dir.chdir(project_path) {
         err = false
