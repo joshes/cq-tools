@@ -127,7 +127,7 @@ Options:
       # Find the group/project configuration based on incoming project name, groups get priority
       group_config = groups.select { |c| c.id == requested_id }
       if group_config.length > 0
-        project_ids = group_config.first['projects']
+        project_ids = group_config.first.projects
         projects_to_build = projects.select { |p| project_ids.include? p.id }
       else
         projects_to_build = projects.select { |c| c.id == requested_id }
