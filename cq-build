@@ -71,7 +71,9 @@ Time: #{Time.now}
     end
 
     def help(config_reader)
-      targets = config_reader.active_project.config.build_config.targets.map { |project| project.id }
+      project_config = config_reader.active_project.config
+      targets = project_config.build_config.targets.map { |project| project.id }
+      targets += project_config.build_config.groups.map { |group| group.id }
       <<-EOS
 Usage: cq-build [-cto] <target> [options]
 
@@ -79,11 +81,11 @@ Options:
  -c          Performs a clean build
  -t          Run tests (Disabled by default)
  -o          Run in offline mode
- <target>   A project (or group) described in the project configuration
+ <target>    A target (or group) described in the project configuration
  [options]   Any additional Maven or JVM system option flags
 
-Available targets:
- #{targets}
+Available targets and groups:
+#{targets.join ', '}
 
       EOS
     end
