@@ -73,7 +73,7 @@ Time: #{Time.now}
     def help(config_reader)
       targets = config_reader.active_project.config.build_config.targets.map { |project| project.id }
       <<-EOS
-Usage: cq-build [-cto] <project> [options]
+Usage: cq-build [-cto] <target> [options]
 
 Options:
  -c          Performs a clean build
