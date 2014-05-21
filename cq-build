@@ -70,7 +70,8 @@ Time: #{Time.now}
       }
     end
 
-    def help
+    def help(config_reader)
+      targets = config_reader.active_project.config.build_config.targets.map { |project| project.id }
       <<-EOS
 Usage: cq-build [-cto] <project> [options]
 
@@ -78,16 +79,21 @@ Options:
  -c          Performs a clean build
  -t          Run tests (Disabled by default)
  -o          Run in offline mode
- <project>   A project (or group) described in the project configuration
+ <target>   A project (or group) described in the project configuration
  [options]   Any additional Maven or JVM system option flags
+
+Available targets:
+ #{targets}
 
       EOS
     end
 
     def maven_exec(argv)
 
+      config = ConfigurationReader.new
+
       if argv.empty?
-        puts help
+        puts help(config)
         exit 1
       end
 
@@ -111,23 +117,22 @@ Options:
       end
 
       if requested_id.nil?
-        puts help
+        puts help(config)
         exit 1
       end
 
-      # Read configuration
-      config = ConfigurationReader.new
+      # parameterize
       project_config = config.active_project.config
       build_config = project_config.build_config
       profiles = build_config.global_profiles
       skip_test_flags = build_config.skip_test_flags
-      projects = build_config.projects
+      projects = build_config.targets
       groups = build_config.groups
 
       # Find the group/project configuration based on incoming project name, groups get priority
       group_config = groups.select { |c| c.id == requested_id }
       if group_config.length > 0
-        project_ids = group_config.first.projects
+        project_ids = group_config.first.targets
         projects_to_build = projects.select { |p| project_ids.include? p.id }
       else
         projects_to_build = projects.select { |c| c.id == requested_id }

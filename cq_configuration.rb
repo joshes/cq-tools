@@ -33,14 +33,14 @@ module Cq
     end
   end
 
-  class BuildProject
+  class BuildTarget
     attr_reader :id, :profiles, :path
 
-    def initialize(project_json)
-      @json = project_json
-      @id = project_json['id']
-      @profiles = project_json['profiles']
-      @path = project_json['path']
+    def initialize(target_json)
+      @json = target_json
+      @id = target_json['id']
+      @profiles = target_json['profiles']
+      @path = target_json['path']
     end
   end
 
@@ -50,18 +50,18 @@ module Cq
     def initialize(groups_json)
       @json = groups_json
       @id = groups_json['id']
-      @projects = groups_json['projects']
+      @targets = groups_json['targets']
     end
   end
 
   class BuildConfig
-    attr_reader :global_profiles, :skip_test_flags, :projects, :groups
+    attr_reader :global_profiles, :skip_test_flags, :targets, :groups
 
     def initialize(build_json)
       @json = build_json
       @global_profiles = build_json['profiles']
       @skip_test_flags = build_json['skipTestFlags']
-      @projects = build_json['projects'].map { |project_json| Cq::BuildProject.new project_json }
+      @targets = build_json['targets'].map { |project_json| Cq::BuildTarget.new project_json }
       @groups = build_json['groups'].map { |groups_json| Cq::BuildGroup.new groups_json }
     end
   end
