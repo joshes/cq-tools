@@ -99,6 +99,9 @@ module Cq
         "[#{content}]"
       }
 
+      # convert "_" back to "-" ... this may kill us at some point
+      json = json.gsub(/_/, '-')
+
       # escape double-quotes
       json = json.gsub(/"/, '\"')
 
