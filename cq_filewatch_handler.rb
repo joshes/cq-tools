@@ -25,7 +25,7 @@ require_relative 'cq_configuration'
 module Cq
   module FileWatchHandler
 
-    DEBUG = false
+    DEBUG = true
     RAISE_ERRORS = false
 
     def self.usage
@@ -42,16 +42,20 @@ module Cq
       DEBUG ? '-v' : '-s'
     end
 
+    def self.curl_referer
+      '-H "referer: app:/"'
+    end
+
     # Upload an arbitrary file to the JCR
     def self.upload_file(ctx)
-      cmd = %Q[curl #{curl_verbosity} -u #{ctx[:user]}:#{ctx[:pass]} -F"#{ctx[:filename]}=@#{ctx[:file]}" #{ctx[:url]}#{ctx[:jcr_path].dirname}]
+      cmd = %Q[curl #{curl_verbosity} #{curl_referer} -u #{ctx[:user]}:#{ctx[:pass]} -F"#{ctx[:filename]}=@#{ctx[:file]}" #{ctx[:url]}#{ctx[:jcr_path].dirname}]
       puts cmd if DEBUG
       `#{cmd}`
     end
 
     # Set the mime type attribute on an existing file in the JCR
     def self.set_mime(ctx)
-      cmd = %Q[curl #{curl_verbosity} -u #{ctx[:user]}:#{ctx[:pass]} -F"jcr:mimeType=#{ctx[:mime_type]}" #{ctx[:url]}#{ctx[:jcr_path]}/jcr:content]
+      cmd = %Q[curl #{curl_verbosity} #{curl_referer} -u #{ctx[:user]}:#{ctx[:pass]} -F"jcr:mimeType=#{ctx[:mime_type]}" #{ctx[:url]}#{ctx[:jcr_path]}/jcr:content]
       puts cmd if DEBUG
       `#{cmd}`
     end
@@ -87,7 +91,7 @@ module Cq
       xml_hash.delete(ns_key)
       # escape double-quotes
       json = xml_hash.to_json.gsub(/"/, '\"')
-      cmd = %Q[curl #{curl_verbosity} -u #{ctx[:user]}:#{ctx[:pass]} -F":operation=import" -F":contentType=json" -F":replace=#{replace}" -F":replaceProperties=#{replace_props}" -F":content=#{json}" #{ctx[:url]}#{jcr_path}]
+      cmd = %Q[curl #{curl_verbosity} #{curl_referer} -u #{ctx[:user]}:#{ctx[:pass]} -F":operation=import" -F":contentType=json" -F":replace=#{replace}" -F":replaceProperties=#{replace_props}" -F":content=#{json}" #{ctx[:url]}#{jcr_path}]
       puts cmd if DEBUG
       `#{cmd}`
     end
