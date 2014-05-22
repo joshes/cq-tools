@@ -89,8 +89,19 @@ module Cq
       ns_key = xml_hash.keys[0]
       xml_hash[filename] = xml_hash[ns_key].delete_if { |k, v| k =~ /^xmlns:.*/ }
       xml_hash.delete(ns_key)
+
+      # xml to json
+      json = xml_hash.to_json.to_s
+
+      # fix array entries that are wrapped in double quotes
+      json = json.gsub(/"\[(.*?)\]"/) { |match|
+        content = $1.split(',').map { |item| "\"#{item}\"" }.join(',')
+        "[#{content}]"
+      }
+
       # escape double-quotes
-      json = xml_hash.to_json.gsub(/"/, '\"')
+      json = json.gsub(/"/, '\"')
+
       cmd = %Q[curl #{curl_verbosity} #{curl_referer} -u #{ctx[:user]}:#{ctx[:pass]} -F":operation=import" -F":contentType=json" -F":replace=#{replace}" -F":replaceProperties=#{replace_props}" -F":content=#{json}" #{ctx[:url]}#{jcr_path}]
       puts cmd if DEBUG
       `#{cmd}`
