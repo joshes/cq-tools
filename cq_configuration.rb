@@ -45,7 +45,7 @@ module Cq
   end
 
   class BuildGroup
-    attr_reader :id, :projects
+    attr_reader :id, :targets
 
     def initialize(groups_json)
       @json = groups_json

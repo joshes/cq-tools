@@ -35,7 +35,7 @@
         "groups": [
             {
                 "id": "all",
-                "projects": [
+                "targets": [
                     "my-project",
                     "sub-project"
                 ]
