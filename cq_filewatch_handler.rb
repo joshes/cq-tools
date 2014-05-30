@@ -25,7 +25,7 @@ require_relative 'cq_configuration'
 module Cq
   module FileWatchHandler
 
-    DEBUG = true
+    DEBUG = false
     RAISE_ERRORS = false
 
     def self.usage
