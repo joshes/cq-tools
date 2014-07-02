@@ -96,7 +96,11 @@ module Cq
       fails.sort!
 
       # Just print fails for now
-      fails.each {|m| puts m }
+      if fails.length > 0
+        fails.each {|m| puts m }
+      else
+        puts 'No differences found'
+      end
     end
 
   end
