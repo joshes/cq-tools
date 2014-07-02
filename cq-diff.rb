@@ -25,12 +25,18 @@ module Cq
 
   class PackageDiffer
 
+    @@DEBUG = false
+
     def ls(uri)
       do_proxy = false
       proxy_host = do_proxy ? 'localhost' : nil
       proxy_port = do_proxy ? '8888' : nil
       Net::HTTP.new(uri.host, uri.port, proxy_host, proxy_port).start { |http|
-        request = Net::HTTP::Get.new('/crx/packmgr/service.jsp?cmd=ls')
+        if @@DEBUG
+          request = Net::HTTP::Get.new(uri.path)
+        else
+          request = Net::HTTP::Get.new('/crx/packmgr/service.jsp?cmd=ls')
+        end
         request.basic_auth(uri.user, uri.password)
         http.use_ssl = uri.scheme == 'https'
         http.verify_mode = OpenSSL::SSL::VERIFY_NONE
